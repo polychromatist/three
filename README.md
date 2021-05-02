@@ -21,7 +21,7 @@ _If you have one multivector `m1`, you can..._
 See an interesting paper on generalized multivector inverse: https://arxiv.org/abs/1712.05204v2 "INVERSE OF MULTIVECTOR: BEYOND P+Q=5 THRESHOLD" (A. ACUS AND A. DARGYS)
 
 ### not yet implemented or confirmed
-- Reflections, rotations, multivector SQRT
+- Reflections, rotations, multivector SQRT\
 Motivating paper on generalized multivector SQRT: https://arxiv.org/abs/2003.06873v1 "Square root of a multivector of Clifford algebras in 3D: A game with signs" (A. Acus, A. Dargys)
 
 ### Warning: May Not Be Suitable for Production
