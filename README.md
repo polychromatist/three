@@ -8,8 +8,8 @@ To specify a multivector directly:
 _If you have two multivectors `m1`, `m2`, you can..._
 - Add / subtract them
 - Take their geometric product: `m1 * m2` (m2 can also be a scalar, Vector3, or Vector2)
-- Take their inner product: `m1 .. m2` OR `m1:inner(m2)` (wrapper for `0.5 * (m1 * x + x * m1)`)
-- Take their outer (wedge) product: `m1 ^ m2` OR `m1:outer(m2)` (wrapper for `0.5 * (m1 * x - x * m1)`)
+- Take their inner product: `m1 .. m2` OR `m1:inner(m2)` (wrapper for `0.5 * (m1 * m2 + m2 * m1)`)
+- Take their outer (wedge) product: `m1 ^ m2` OR `m1:outer(m2)` (wrapper for `0.5 * (m1 * m2 - m2 * m1)`)
 - Take a quotient (if m2 is invertible): `m1 / m2` (wrapper for `m1 * m2.inverse`)
 
 _If you have one multivector `m1`, you can..._
