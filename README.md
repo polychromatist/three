@@ -3,7 +3,11 @@ Roblox Lua library for 3D multivectors, the geometric product and associated ope
 
 ### usage
 To specify a multivector directly:
-`local m1 = three(a, x, y, z, xy, xz, yz, xyz)`
+`local m1 = three(a, x, y, z, xy, xz, yz, im)`
+- `a` describes the scalar component `m1.scalar` (returns a number)
+- `x, y, z` describes the vector component `m1.vector` (returns a 3-tuple of numbers)
+- `xy, xz, yz` describes the pseudovector component `m1.pseudovector` (similarly a 3-tuple)
+- `im` describes the pseudoscalar component `m1.pseudoscalar` (number)
 
 _If you have two multivectors `m1`, `m2`, you can..._
 - Add / subtract them
