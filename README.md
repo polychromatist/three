@@ -21,7 +21,7 @@ _If you have one multivector `m1`, you can..._
 See an interesting paper on generalized multivector inverse: https://arxiv.org/abs/1712.05204v2 "INVERSE OF MULTIVECTOR: BEYOND P+Q=5 THRESHOLD" (A. ACUS AND A. DARGYS)
 
 ### not confirmed
-- Dual `m1.dual`, which I define by `m1 = m1.dual * I`
+- Dual `m1.dual`, which I define by `m1 = m1.dual * I`, where `I = three(0,0,0,0,0,0,0,1) = three.im`
 - Reflections `m1:reflect(m2)`, regressive product `m1 % m2` OR `m1:regressive(m2)`\
 
 ### not yet implemented
