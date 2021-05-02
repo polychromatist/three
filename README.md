@@ -13,7 +13,7 @@ _If you have two multivectors `m1`, `m2`, you can..._
 - Take a quotient (if m2 is invertible): `m1 / m2` (wrapper for `m1 * m2.inverse`)
 
 _If you have one multivector `m1`, you can..._
-- Take its reverse conjugate `m1.reversion`, which is the multivector such that, if m1 = v1 * v2 * ... * v_n for vectors v_i, then m1.reversion = v_n * v_(n-1) * ... * v_1
+- Take its reverse conjugate `m1.reversion`, which is the multivector such that, if `m1 = v1 * v2 * ... * v_n` for vectors v_i, then `m1.reversion = v_n * v_(n-1) * ... * v_1`
 - Take its Clifford conjugate `m1.bar`, which is useful to provide a value analogous to magnitude (by `m1 * m1.bar`)
 - Take its "magnitude" `m1.magnitude`, which is vector magnitude if the multivector is a vector, but is defined by `sqrt(sqrt(b.scalar ^ 2 + b.pseudoscalar ^ 2))`, where `b = m1 * m1.bar`
 - Take its "unit" multivector `m1.unit`, simply `m1 / m1.magnitude`
