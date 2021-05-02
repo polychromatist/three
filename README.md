@@ -17,7 +17,7 @@ _If you have one multivector `m1`, you can..._
 - Take its Clifford conjugate `m1.bar`, which is useful to provide a value analogous to magnitude (by `m1 * m1.bar`)
 - Take its "magnitude" `m1.magnitude`, which is vector magnitude if the multivector is a vector, but is defined by `sqrt(sqrt(b.scalar ^ 2 + b.pseudoscalar ^ 2))`, where `b = m1 * m1.bar`
 - Take its "unit" multivector `m1.unit`, simply `m1 / m1.magnitude`
-- Take its inverse `m1.inverse`, defined by `m1 * m1.inverse = id = three(1)`
+- Take its inverse `m1.inverse`, defined by `m1 * m1.inverse = id = three(1)`\
 See an interesting paper on generalized multivector inverse: https://arxiv.org/abs/1712.05204v2 "INVERSE OF MULTIVECTOR: BEYOND P+Q=5 THRESHOLD" (A. ACUS AND A. DARGYS)
 
 ### not yet implemented or confirmed
