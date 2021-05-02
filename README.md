@@ -17,11 +17,15 @@ _If you have one multivector `m1`, you can..._
 - Take its Clifford conjugate `m1.bar`, which is useful to provide a value analogous to magnitude (by `m1 * m1.bar`)
 - Take its "magnitude" `m1.magnitude`, which is vector magnitude if the multivector is a vector, but is defined by `sqrt(sqrt(b.scalar ^ 2 + b.pseudoscalar ^ 2))`, where `b = m1 * m1.bar`
 - Take its "unit" multivector `m1.unit`, simply `m1 / m1.magnitude`
-- Take its inverse `m1.inverse`, defined by `m1 * m1.inverse = id = three(1)`\
+- Take its inverse `m1.inverse`, defined by `m1 * m1.inverse = id = unit scalar = three(1)`\
 See an interesting paper on generalized multivector inverse: https://arxiv.org/abs/1712.05204v2 "INVERSE OF MULTIVECTOR: BEYOND P+Q=5 THRESHOLD" (A. ACUS AND A. DARGYS)
 
-### not yet implemented or confirmed
-- Reflections, rotations, multivector SQRT\
+### not confirmed
+- Dual `m1.dual`, which I define by `m1 = m1.dual * I`
+- Reflections `m1:reflect(m2)`, regressive product `m1 % m2` OR `m1:regressive(m2)`\
+
+### not yet implemented
+- rotations, multivector SQRT\
 Motivating paper on generalized multivector SQRT: https://arxiv.org/abs/2003.06873v1 "Square root of a multivector of Clifford algebras in 3D: A game with signs" (A. Acus, A. Dargys)
 
 ### Warning: May Not Be Suitable for Production
