@@ -151,24 +151,35 @@ Three = {
 			return Three.lib.inner(t1.dual, t2)
 		end,
 		project = function(t1, t2)
-			return (t1 ^ t2) * t2.inverse
+			return (t1 .. t2) * t2.inverse
 		end,
 		reject = function(t1, t2)
-			return (t1 .. t2) * t2.inverse
+			return (t1 ^ t2) * t2.inverse
 		end,
 		reflect = function(t1, t2)
 			return -t2 * t1 * t2.inverse
 		end,
 		lerp = function(t1, t2, alpha, plane)
---			local angle = 
+			
 		end,
 		rotateTo = function(t1, t2, theta, plane)
 			if not plane then
 				plane = t1 ^ t2
 			end
+			
+			
+		end,
+		axisAngle = function(t1, axis, theta)
+			local plane = axis.dual
+			
+			
 		end,
 		rotateOn = function(plane, t1, t2, theta)
 			
+		end,
+		-- this is the exponential function for bivectors (plane segments) only (assumed t1.scalar = t1.vector = t1.pseudoscalar = 0)
+		biExp = function(t1, theta)
+			return math.cos(theta) + math.sin(theta) * t1
 		end,
 	},
 	__unm = function(t)
@@ -186,7 +197,7 @@ Three = {
 		if typeof(t1) == "number" then
 			return three(t1 - t2[1], t2[2], t2[3], t2[4], t2[5], t2[6], t2[7], t2[8])
 		elseif typeof(t2) == "number" then
-			return three(t2 - t1[1], t1[2], t1[3], t1[4], t1[5], t1[6], t1[7], t1[8])
+			return three(t1[1] - t2, t1[2], t1[3], t1[4], t1[5], t1[6], t1[7], t1[8])
 		end
 		return three(t1[1] - t2[1], t1[2] - t2[2], t1[3] - t2[3], t1[4] - t2[4], t1[5] - t2[5], t1[6] - t2[6], t1[7] - t2[7], t1[8] - t2[8])
 	end,
