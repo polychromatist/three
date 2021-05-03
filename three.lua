@@ -195,7 +195,7 @@ Three = {
 		-- 100000 repeated multiplications of the multivectors three(1, 2, 3, 4, 5, 6, 7, 8) * three(8, 7, 6, 5, 4, 3, 2, 1):
 		-- conventional implementation: 1.35s runtime
 		-- geo2: 0.22s runtime
-		-- less or equally efficient in general for sparse multivectors, like pure vectors, pure pseudovectors or versors (Aone + Bim)
+		-- less or equally efficient in general for sparse multivectors, like pure vectors, pure pseudovectors or versors
 		geo2 = function(a, b)
 			local c = {0, 0, 0, 0, 0, 0, 0, 0}
 			
