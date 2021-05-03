@@ -9,7 +9,7 @@ The language of geometric algebra is quickly taking the stage as a universal rep
 Please take some time to understand these captivating objects: https://www.youtube.com/watch?v=60z_hpEAtD8
 
 ### usage
-Place contents of `three.lua` into ReplicatedStorage
+Place contents of `three.lua` into ReplicatedStorage\
 `local three = require(game:GetService("ReplicatedStorage").three)`
 To specify a multivector directly:
 `local m1 = three(a, x, y, z, xy, xz, yz, im)`
