@@ -1,6 +1,13 @@
 # three
 Roblox Lua library for 3D multivectors, the geometric product and associated operations
 
+### what/why
+The space of 3D multivectors is a space of regular 3D vectors and an assortment of objects, all of which become transformations under the **geometric product**, a useful way to multiply vectors. Projections, rotations, reflections are defined with this product in a way that is practical, but also illuminating, suggestive, and privy to tinkering.
+
+The language of geometric algebra is quickly taking the stage as a universal representation of transformations in space.
+
+Please take some time to understand these captivating objects: https://www.youtube.com/watch?v=60z_hpEAtD8
+
 ### usage
 To specify a multivector directly:
 `local m1 = three(a, x, y, z, xy, xz, yz, im)`
