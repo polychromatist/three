@@ -14,11 +14,9 @@ local basis_tokens = {
 	"one", "x", "y", "z", "xy", "xz", "yz", "im"
 }
 
-local EPSLOOKUP = {
-	X = {0, 1, 0, 0, 1, 1, 0, 1},
-	Y = {0, 0, 1, 0, 1, 0, 1, 1},
-	Z = {0, 0, 0, 1, 0, 1, 1, 1}
-}
+local EPSLOOKUP_X = {0, 1, 0, 0, 1, 1, 0, 1}
+local EPSLOOKUP_Y = {0, 0, 1, 0, 1, 0, 1, 1}
+local EPSLOOKUP_Z = {0, 0, 0, 1, 0, 1, 1, 1}
 
 local EPSTBL = {
 	[0] = {
@@ -31,9 +29,21 @@ local EPSTBL = {
 	}
 }
 
+local PHI = {
+	nil,
+	{4, 6, 5, 3},
+	{2, 5, 7, 4},
+	{3, 7, 6, 2},
+	{2, 3, 6, 7},
+	{4, 2, 7, 5},
+	{3, 4, 5, 6}
+}
+
 local function eps3(i, j)
-	return EPSTBL[EPSLOOKUP.X[i]][EPSLOOKUP.Z[j]] * EPSTBL[EPSLOOKUP.X[i]][EPSLOOKUP.Y[j]] * EPSTBL[EPSLOOKUP.Y[i]][EPSLOOKUP.Z[j]]
+	return EPSTBL[EPSLOOKUP_X[i]][EPSLOOKUP_Z[j]] * EPSTBL[EPSLOOKUP_X[i]][EPSLOOKUP_Y[j]] * EPSTBL[EPSLOOKUP_Y[i]][EPSLOOKUP_Z[j]]
 end
+
+local bxor = bit32.bxor
 
 local three
 local Three
@@ -181,6 +191,66 @@ Three = {
 		biExp = function(t1, theta)
 			return math.cos(theta) + math.sin(theta) * t1
 		end,
+		-- for multivectors with many nonzero components: more scalable implementation of geometric product
+		-- 100000 repeated multiplications of the multivectors three(1, 2, 3, 4, 5, 6, 7, 8) * three(8, 7, 6, 5, 4, 3, 2, 1):
+		-- conventional implementation: 1.35s runtime
+		-- geo2: 0.22s runtime
+		-- less or equally efficient in general for sparse multivectors, like pure vectors, pure pseudovectors or versors (Aone + Bim)
+		geo2 = function(a, b)
+			local c = {0, 0, 0, 0, 0, 0, 0, 0}
+			
+			a[6] = -a[6]
+			b[6] = -b[6]
+			
+			for i = 1, 4 do
+				c[1] += a[i] * b[i] - a[i + 4] * b[i + 4]
+			end
+			do
+				local phi_i1
+				for i = 2, 4 do
+					phi_i1 = PHI[i]
+					c[i] = a[1] * b[i] + a[i] * b[1] + a[phi_i1[1]] * b[phi_i1[2]] - a[phi_i1[2]] * b[phi_i1[1]] + a[phi_i1[3]] * b[phi_i1[4]] - a[phi_i1[4]] * b[phi_i1[3]] + a[8] * b[9 - i] + a[9 - i] * b[8] 
+				end
+				for i = 5, 7 do
+					phi_i1 = PHI[i]
+					if i ~= 6 then
+						c[i] = a[1] * b[i] + a[i] * b[1] + a[phi_i1[1]] * b[phi_i1[2]] - a[phi_i1[2]] * b[phi_i1[1]] + a[phi_i1[3]] * b[phi_i1[4]] - a[phi_i1[4]] * b[phi_i1[3]] - a[8] * b[9 - i] + a[9 - i] * b[8]
+					else
+						c[i] = -(a[1] * b[i] + a[i] * b[1] + a[phi_i1[1]] * b[phi_i1[2]] - a[phi_i1[2]] * b[phi_i1[1]] + a[phi_i1[3]] * b[phi_i1[4]] - a[phi_i1[4]] * b[phi_i1[3]] - a[8] * b[9 - i] + a[9 - i] * b[8])
+					end 
+				end
+			end
+			-- without lookup table
+			--[=[
+			do
+				local pi1x, pi1y, pi2x, pi2y
+				for i = 2, 4 do
+					pi1x, pi1y = (i % 3) + 2, ((1 - i) % 3) + 2
+					pi2x, pi2y = 9 - pi1x, 9 - pi1y
+					c[i] = a[1] * b[i] + a[i] * b[1] + a[pi1x] * b[pi1y] - a[pi1y] * b[pi1x] + a[pi2x] * b[pi2y] - a[pi2y] * b[pi2x] + a[8] * b[9 - i] + a[9 - i] * b[8] 
+				end
+				for i = 5, 7 do
+					pi1x, pi1y = ((5 - i) % 3) + 2, ((6 - i) % 3) + 2
+					pi2x, pi2y = 9 - pi1y, 9 - pi1x
+					if i ~= 6 then
+						c[i] = a[1] * b[i] + a[i] * b[1] + a[pi1x] * b[pi1y] - a[pi1y] * b[pi1x] + a[pi2x] * b[pi2y] - a[pi2y] * b[pi2x] - a[8] * b[9 - i] + a[9 - i] * b[8]
+					else
+						
+						c[i] = -(a[1] * b[i] + a[i] * b[1] + a[pi1x] * b[pi1y] - a[pi1y] * b[pi1x] + a[pi2x] * b[pi2y] - a[pi2y] * b[pi2x] - a[8] * b[9 - i] + a[9 - i] * b[8])
+					end
+				end
+			end]=]
+			--c[5] = -c[5]
+			--c[7] = -c[7]
+			for i = 1, 8 do
+				c[8] += a[i] * b[9 - i]
+			end
+
+			a[6] = -a[6]
+			b[6] = -b[6]
+			
+			return setmetatable(c, Three)
+		end,
 	},
 	__unm = function(t)
 		return three(-t[1], -t[2], -t[3], -t[4], -t[5], -t[6], -t[7], -t[8])
@@ -223,7 +293,7 @@ Three = {
 					continue
 				end
 --				print("tick")
-				t_prod[basis_index[bit32.bxor(basis_list[i], basis_list[j])]] += EPSTBL[EPSLOOKUP.X[j]][EPSLOOKUP.Z[i]] * EPSTBL[EPSLOOKUP.X[j]][EPSLOOKUP.Y[i]] * EPSTBL[EPSLOOKUP.Y[j]][EPSLOOKUP.Z[i]] * t1[i] * t2[j]
+				t_prod[basis_index[bxor(basis_list[i], basis_list[j])]] += EPSTBL[EPSLOOKUP_X[j]][EPSLOOKUP_Z[i]] * EPSTBL[EPSLOOKUP_X[j]][EPSLOOKUP_Y[i]] * EPSTBL[EPSLOOKUP_Y[j]][EPSLOOKUP_Z[i]] * t1[i] * t2[j]
 			end
 		end
 		
@@ -344,6 +414,7 @@ Three.lib.im = three(0, 0, 0, 0, 0, 0, 0, 1)
 Three.lib.iminv = three(0, 0, 0, 0, 0, 0, 0, -1)
 Three.lib.zero = three()
 
+--[=[
 return {
 	three = setmetatable({}, {
 		__index = function(t, k)
@@ -353,4 +424,12 @@ return {
 			return three(...)
 		end,
 	})
-}
+}]=]
+return setmetatable({}, {
+	__index = function(t, k)
+		return Three.lib[k]
+	end,
+	__call = function(_, ...)
+		return three(...)
+	end,
+})
