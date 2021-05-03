@@ -52,17 +52,30 @@ Three = {
 		reversion = function(t)
 			return three(t[1], t[2], t[3], t[4], -t[5], -t[6], -t[7], -t[8])
 		end,
+		gradeinvol = function(t)
+			return three(t[1], -t[2], -t[3], -t[4], t[5], t[6], t[7], -t[8])
+		end,
+		grade = function(t)
+			if t[8] > 1e-6 or t[8] < -1e-6 then
+				return 3
+			elseif t[7] > 1e-6 or t[7] < -1e-6 or t[6] > 1e-6 or t[6] < -1e-6 or t[5] > 1e-6 or t[5] < -1e-6 then
+				return 2
+			elseif t[4] > 1e-6 or t[4] < -1e-6 or t[3] > 1e-6 or t[3] < -1e-6 or t[2] > 1e-6 or t[2] < -1e-6 then
+				return 1
+			end
+			return 0
+		end,
 		components = function(t)
 			return t[1], t[2], t[3], t[4], t[5], t[6], t[7], t[8]
 		end,
 		vector = function(t)
-			return t[2], t[3], t[4]
+			return Vector3.new(t[2], t[3], t[4])
 		end,
 		pseudovector = function(t)
-			return t[4], t[5], t[6]
+			return three(0, 0, 0, 0, t[4], t[5], t[6], 0)
 		end,
 		pseudoscalar = function(t)
-			return t[8]
+			return three(0, 0, 0, 0, 0, 0, 0, t[8])
 		end,
 		scalar = function(t)
 			return t[1]
@@ -90,6 +103,8 @@ Three = {
 		sqrt = function(t)
 			
 		end,
+		-- can return 0 for multivectors composed of a null versor
+		-- another formulation: math.sqrt(t.reversion:scalarprod(t)) per Leo Dorst (Geometric Algebra, Ch. 2 The Inner Products of Geometric Algebra, p. 40)
 		magnitude = function(t)
 			local t_bar = t.bar
 			local b = (t * t_bar)
@@ -145,17 +160,56 @@ Three = {
 		end,
 	},
 	lib = {
-		v3 = function(arg1, arg2, arg3)
+		vec = function(arg1, arg2, arg3, arg4)
 			if typeof(arg1) == "Vector3" then
+				arg4 = arg2
 				arg1, arg2, arg3 = arg1.X, arg1.Y, arg1.Z
 			end
-			return three(0, arg1, arg2, arg3, 0, 0, 0, 0)
+			return three(0, arg1, arg2, arg3, 0, 0, 0, arg4 or 0)
 		end,
+		bivec = function(arg1, arg2, arg3, arg4)
+			if typeof(arg1) == "Vector3" then
+				arg4 = arg2
+				arg1, arg2, arg3 = arg1.X, arg1.Y, arg1.Z
+			end
+			return three(arg4 or 0, 0, 0, 0, arg1, arg2, arg3, 0)
+		end,
+		-- this product also has the identity:
+		-- 2 * a:inner(b) = (a + b).sq - a.sq - b.sq
 		inner = function(t1, t2)
 			return 0.5 * (t1 * t2 + t2 * t1)
 		end,
 		outer = function(t1, t2)
 			return 0.5 * (t1 * t2 - t2 * t1)
+		end,
+		-- the scalar part of the geometric product
+		-- note that sometimes "the scalar product" refers to the regular inner product
+		-- also note the following identity:
+		-- t1:scalarprod(t2) + t1:fatdot(t2) = t1:left(t2) + t1:right(t2)
+		scalarprod = function(t1, t2)
+			-- equivalent to (t1 * t2):gradeproject(0)
+			local prod = 0
+			
+			for i = 1, 4 do
+				prod += t1[i] * t2[i] - t1[i + 4] * t2[i + 4]
+			end
+			
+			return prod
+		end,
+		fatdot = function(t1, t2)
+			local prod = t1 * t2
+			
+			return three(prod:gradeproject(math.abs(t1.grade - t2.grade)))
+		end,
+		left = function(t1, t2)
+			local prod = t1 * t2
+
+			return three(prod:gradeproject(math.max(0, t2.grade - t1.grade)))
+		end,
+		right = function(t1, t2)
+			local prod = t1 * t2
+			
+			return three(prod:gradeproject(math.max(0, t1.grade - t2.grade)))
 		end,
 		regressive = function(t1, t2)
 			return Three.lib.inner(t1.dual, t2)
@@ -168,6 +222,18 @@ Three = {
 		end,
 		reflect = function(t1, t2)
 			return -t2 * t1 * t2.inverse
+		end,
+		-- get a multivector's k-th grade component
+		gradeproject = function(t1, k)
+			if k == 0 then
+				return t1.scalar
+			elseif k == 1 then
+				return t1.vector
+			elseif k == 2 then
+				return t1.pseudovector
+			elseif k == 3 then
+				return t1.pseudoscalar
+			end
 		end,
 		lerp = function(t1, t2, alpha, plane)
 			
@@ -195,7 +261,7 @@ Three = {
 		-- 100000 repeated multiplications of the multivectors three(1, 2, 3, 4, 5, 6, 7, 8) * three(8, 7, 6, 5, 4, 3, 2, 1):
 		-- conventional implementation: 1.35s runtime
 		-- geo2: 0.22s runtime
-		-- less or equally efficient in general for sparse multivectors, like pure vectors, pure pseudovectors or versors
+		-- less or equally efficient in general for sparse multivectors, like pure vectors, pure pseudovectors or versors (Aone + Bim)
 		geo2 = function(a, b)
 			local c = {0, 0, 0, 0, 0, 0, 0, 0}
 			
@@ -213,6 +279,9 @@ Three = {
 				end
 				for i = 5, 7 do
 					phi_i1 = PHI[i]
+					-- note: if a == b, the phi terms are cancelling
+					-- therefore we are left with the scalar and the pseudoscalar contribution only
+					-- could be interesting in a sqrt implementation
 					if i ~= 6 then
 						c[i] = a[1] * b[i] + a[i] * b[1] + a[phi_i1[1]] * b[phi_i1[2]] - a[phi_i1[2]] * b[phi_i1[1]] + a[phi_i1[3]] * b[phi_i1[4]] - a[phi_i1[4]] * b[phi_i1[3]] - a[8] * b[9 - i] + a[9 - i] * b[8]
 					else
@@ -399,6 +468,9 @@ Three.__index = function(t, k)
 	return Three[k]
 end
 three = function(a, x, y, z, xy, xz, yz, xyz)
+	if getmetatable(a) == Three then
+		return a
+	end
 	if typeof(a) == "Vector3" then
 		x = a.X
 		y = a.Y
@@ -413,6 +485,7 @@ end
 Three.lib.im = three(0, 0, 0, 0, 0, 0, 0, 1)
 Three.lib.iminv = three(0, 0, 0, 0, 0, 0, 0, -1)
 Three.lib.zero = three()
+Three.lib.one = three(1, 0, 0, 0, 0, 0, 0, 0)
 
 --[=[
 return {
