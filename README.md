@@ -14,9 +14,9 @@ Place contents of `three.lua` into ReplicatedStorage\
 To specify a multivector directly:
 `local m1 = three(a, x, y, z, xy, xz, yz, im)`
 - `a` describes the scalar component `m1.scalar` (returns a number)
-- `x, y, z` describes the vector component `m1.vector` (returns a 3-tuple of numbers)
-- `xy, xz, yz` describes the pseudovector component `m1.pseudovector` (similarly a 3-tuple)
-- `im` describes the pseudoscalar component `m1.pseudoscalar` (number)
+- `x, y, z` describes the vector component `m1.vector` (returns a Vector3)
+- `xy, xz, yz` describes the pseudovector component `m1.pseudovector` (returns a pure bivector Three object)
+- `im` describes the pseudoscalar component `m1.pseudoscalar` (returns a pure pseudoscalar Three object)
 
 _If you have two multivectors `m1`, `m2`, you can..._
 - Add / subtract them
