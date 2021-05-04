@@ -14,9 +14,9 @@ Place contents of `three.lua` into ReplicatedStorage\
 To specify a multivector directly:
 `local m1 = three(a, x, y, z, xy, xz, yz, im)`
 - `a` describes the scalar component `m1.scalar` (returns a number)
-- `x, y, z` describes the vector component `m1.vector` (returns a 3-tuple of numbers)
-- `xy, xz, yz` describes the pseudovector component `m1.pseudovector` (similarly a 3-tuple)
-- `im` describes the pseudoscalar component `m1.pseudoscalar` (number)
+- `x, y, z` describes the vector component `m1.vector` (returns a Vector3)
+- `xy, xz, yz` describes the pseudovector component `m1.pseudovector` (returns a pure bivector Three object)
+- `im` describes the pseudoscalar component `m1.pseudoscalar` (returns a pure pseudoscalar Three object)
 
 _If you have two multivectors `m1`, `m2`, you can..._
 - Add / subtract them
@@ -24,18 +24,18 @@ _If you have two multivectors `m1`, `m2`, you can..._
 - Take their inner product: `m1 .. m2` OR `m1:inner(m2)` (wrapper for `0.5 * (m1 * m2 + m2 * m1)`)
 - Take their outer (wedge) product: `m1 ^ m2` OR `m1:outer(m2)` (wrapper for `0.5 * (m1 * m2 - m2 * m1)`)
 - Take a quotient (if m2 is invertible): `m1 / m2` (wrapper for `m1 * m2.inverse`)
+- Take the _scalar_ product `m1:scalarprod(m2)`, fat dot product `m1:fatdot(m2)`, `m1:left(m2)` and `m1:right(m2)` contractions
+- Take a generalized reflection: `m1:reflect(m2)`
+- Take a regressive product: `m1:regressive(m2)` / `m1:meet(m2)` / `m1:join(m2)`
 
 _If you have one multivector `m1`, you can..._
 - Take its reverse conjugate `m1.reversion`, which is the multivector such that, if `m1 = v1 * v2 * ... * v_n` for vectors v_i, then `m1.reversion = v_n * v_(n-1) * ... * v_1`
 - Take its Clifford conjugate `m1.bar`, which is useful to provide a value analogous to magnitude (by `m1 * m1.bar`)
+- Take its Hodge dual: `m1.dual`
 - Take its "magnitude" `m1.magnitude`, which is vector magnitude if the multivector is a vector, but is defined by `sqrt(sqrt(b.scalar ^ 2 + b.pseudoscalar ^ 2))`, where `b = m1 * m1.bar`
 - Take its "unit" multivector `m1.unit`, simply `m1 / m1.magnitude`
 - Take its inverse `m1.inverse`, defined by `m1 * m1.inverse = id = unit scalar = three(1)`\
 See an interesting paper on generalized multivector inverse: https://arxiv.org/abs/1712.05204v2 "INVERSE OF MULTIVECTOR: BEYOND P+Q=5 THRESHOLD" (A. ACUS AND A. DARGYS)
-
-### not confirmed
-- Dual `m1.dual`, which I define by `m1 = m1.dual * I`, where `I = three(0,0,0,0,0,0,0,1) = three.im`
-- Reflections `m1:reflect(m2)`, regressive product `m1 % m2` OR `m1:regressive(m2)`\
 
 ### not yet implemented
 - rotations, multivector SQRT\
