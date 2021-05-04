@@ -25,8 +25,9 @@ _If you have two multivectors `m1`, `m2`, you can..._
 - Take their outer (wedge) product: `m1 ^ m2` OR `m1:outer(m2)` (wrapper for `0.5 * (m1 * m2 - m2 * m1)`)
 - Take a quotient (if m2 is invertible): `m1 / m2` (wrapper for `m1 * m2.inverse`)
 - Take the _scalar_ product `m1:scalarprod(m2)`, fat dot product `m1:fatdot(m2)`, `m1:left(m2)` and `m1:right(m2)` contractions
-- Take a generalized reflection: `m1:reflect(m2)`
+- Take their _exterior_ product: `m1:exterior(m2)`
 - Take a regressive product: `m1:regressive(m2)` / `m1:meet(m2)` / `m1:join(m2)`
+- Take a generalized reflection: `m1:reflect(m2)`
 
 _If you have one multivector `m1`, you can..._
 - Take its reverse conjugate `m1.reversion`, which is the multivector such that, if `m1 = v1 * v2 * ... * v_n` for vectors v_i, then `m1.reversion = v_n * v_(n-1) * ... * v_1`
