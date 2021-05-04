@@ -473,7 +473,8 @@ Three = {
 		return t1 * t2.Inverse
 	end,
 	__pow = function(t1, t2)
-		return Three.lib.outer(t1, t2)
+		--return Three.lib.outer(t1, t2)
+		return Three.lib.exterior(t1, t2)
 	end,
 	__concat = function(t1, t2)
 		return Three.lib.inner(t1, t2)
