@@ -55,6 +55,7 @@ Three = {
 		gradeinvol = function(t)
 			return three(t[1], -t[2], -t[3], -t[4], t[5], t[6], t[7], -t[8])
 		end,
+		--[=[
 		-- this value is not defined for general multivectors. this is defined for k-blades (products of linearly independent vectors)
 		grade = function(t)
 			if t[8] > 1e-6 or t[8] < -1e-6 then
@@ -65,7 +66,7 @@ Three = {
 				return 1
 			end
 			return 0
-		end,
+		end,]=]
 		components = function(t)
 			return t[1], t[2], t[3], t[4], t[5], t[6], t[7], t[8]
 		end,
@@ -92,11 +93,11 @@ Three = {
 			return three(t[8], t[7], -t[6], t[5], -t[4], t[3], -t[2], -t[1])
 		end,
 		step = function(t)
-			if t[8] ~= 0 then
+			if t[8] > 1e-6 or t[8] < -1e-6 then
 				return 3
-			elseif t[7] ~= 0 or t[6] ~= 0 or t[5] ~= 0 then
+			elseif t[7] > 1e-6 or t[7] < -1e-6 or t[6] > 1e-6 or t[6] < -1e-6 or t[5] > 1e-6 or t[5] < -1e-6 then
 				return 2
-			elseif t[4] ~= 0 or t[3] ~= 0 or t[2] ~= 0 then
+			elseif t[4] > 1e-6 or t[4] < -1e-6 or t[3] > 1e-6 or t[3] < -1e-6 or t[2] > 1e-6 or t[2] < -1e-6 then
 				return 1
 			end
 			return 0
@@ -185,14 +186,25 @@ Three = {
 			return 0.5 * (t1 * t2 - t2 * t1)
 		end,
 		-- direct implementation of exterior product
-		exterior = function(t1, t2)
+		exterior2 = function(t1, t2)
 			local prod = three()
 			
 			local t1r, t2s, term_rs
 			for r = 0, 3 do
 				t1r = three(t1:gradeproject(r))
+				if t1r == Three.lib.zero then
+					continue
+				end
 				for s = 0, 3 do
 					t2s = three(t2:gradeproject(s))
+					if r + s > 3 or t2s == Three.lib.zero then
+						continue
+					end
+					
+					print(t1r)
+					print(t2s)
+					
+					print(r + s)
 					
 					term_rs = (t1r * t2s):gradeproject(r + s)
 					
@@ -205,11 +217,31 @@ Three = {
 			end
 			
 			return prod
-			
+			--return t1.scalar * t2 + t2.scalar * (t1 - t1.scalar) + (three(t1.vector) * t2.pseudovector + t1.pseudovector * t2.vector):gradeproject(3) + (three(t1.vector) * t2.vector):gradeproject(2)
+		end,
+		exterior = function(t1, t2)
 			--[=[
-			-- not sure why i can take the highest grade of multivectors and just use that but ok
-			
-			return (t1 * t2):gradeproject(t1.grade + t2.grade) or Three.lib.zero]=]
+				local prod = three()
+
+				local t1r, t2s, term_rs
+				for r = 0, 3 do
+					t1r = three(t1:gradeproject(r))
+					for s = 0, 3 do
+						t2s = three(t2:gradeproject(s))
+
+						term_rs = (t1r * t2s):gradeproject(r + s)
+
+						if term_rs then
+							prod += term_rs
+						end
+
+						term_rs = nil
+					end
+				end
+
+				return prod]=]
+			--			print((three(t1.vector) * t2.pseudovector + t1.pseudovector * t2.vector).pseudoscalar)
+			return t1.scalar * t2 + t2.scalar * (t1 - t1.scalar) + (three(t1.vector) * t2.pseudovector + t1.pseudovector * t2.vector).pseudoscalar + (three(t1.vector) * t2.vector).pseudovector
 		end,
 		-- the scalar part of the geometric product
 		-- note that sometimes "the scalar product" refers to the regular inner product
@@ -407,9 +439,9 @@ Three = {
 		elseif typeof(t2) == "number" then
 			return three(t2 + t1[1], t1[2], t1[3], t1[4], t1[5], t1[6], t1[7], t1[8])
 		elseif typeof(t2) == "Vector3" then
-			return three(t2.X + t1[1], t2.Y + t1[2], t2.Z + t1[3], t1[4], t1[5], t1[6], t1[7], t1[8])
+			return three(t1[1], t2.X + t1[2], t2.Y + t1[3], t2.Z + t1[4], t1[5], t1[6], t1[7], t1[8])
 		elseif typeof(t2) == "Vector2" then
-			return three(t2.X + t1[1], t2.Y + t1[2], t1[3], t1[4], t1[5], t1[6], t1[7], t1[8])
+			return three(t1[1], t1.X + t1[2], t1.Y + t1[3], t1[4], t1[5], t1[6], t1[7], t1[8])
 		end
 		return three(t1[1] + t2[1], t1[2] + t2[2], t1[3] + t2[3], t1[4] + t2[4], t1[5] + t2[5], t1[6] + t2[6], t1[7] + t2[7], t1[8] + t2[8])
 	end,
@@ -419,9 +451,9 @@ Three = {
 		elseif typeof(t2) == "number" then
 			return three(t1[1] - t2, t1[2], t1[3], t1[4], t1[5], t1[6], t1[7], t1[8])
 		elseif typeof(t2) == "Vector3" then
-			return three(t1[1] - t2.X, t1[2] - t2.Y, t1[3] - t2.Z, t1[4], t1[5], t1[6], t1[7], t1[8])
+			return three(t1[1], t1[2] - t2.X, t1[3] - t2.Y, t1[4] - t2.Z, t1[5], t1[6], t1[7], t1[8])
 		elseif typeof(t2) == "Vector2" then
-			return three(t1[1] - t2.X, t1[2] - t2.Y, t1[3], t1[4], t1[5], t1[6], t1[7], t1[8])
+			return three(t1[1], t1[2] - t2.X, t1[3] - t2.Y, t1[4], t1[5], t1[6], t1[7], t1[8])
 		end
 		return three(t1[1] - t2[1], t1[2] - t2[2], t1[3] - t2[3], t1[4] - t2[4], t1[5] - t2[5], t1[6] - t2[6], t1[7] - t2[7], t1[8] - t2[8])
 	end,
@@ -544,6 +576,7 @@ Three.unary.Unit = Three.unary.unit
 Three.unary.Inverse = Three.unary.inverse
 Three.unary.Reversion = Three.unary.reversion
 Three.unary.Bar = Three.unary.bar
+Three.unary.grade = Three.unary.step
 Three.lib.join = Three.lib.regressive
 Three.lib.meet = Three.lib.regressive
 Three.__index = function(t, k)
