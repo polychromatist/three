@@ -1,3 +1,5 @@
+## archived in favor of three/four bundle "thor" to be published on a later date!
+
 # three
 Roblox Lua library for 3D multivectors, the geometric product and associated operations
 
